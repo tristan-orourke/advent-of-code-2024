@@ -15,6 +15,14 @@ defmodule ReadInput do
     |> nestedMap(&String.to_integer/1)
     |> rotateMatrix
   end
+
+  def readReports(filename) do
+    File.read!(filename)
+    |> String.split("\n")
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(&String.split/1)
+    |> nestedMap(&String.to_integer/1)
+  end
 end
 
 # IO.inspect ReadInput.readVerticalLists("input/day1Test.txt")
