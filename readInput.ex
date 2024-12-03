@@ -16,12 +16,17 @@ defmodule ReadInput do
     |> rotateMatrix
   end
 
-  def readReports(filename) do
+  def readNumberLists(filename) do
     File.read!(filename)
     |> String.split("\n")
     |> Enum.map(&String.trim/1)
     |> Enum.map(&String.split/1)
     |> nestedMap(&String.to_integer/1)
+  end
+
+  def readString(filename) do
+    File.read!(filename)
+    |> String.trim
   end
 end
 

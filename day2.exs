@@ -34,8 +34,8 @@ defmodule Reports do
   end
 end
 
-exampleInput = ReadInput.readReports(("input/day2Test.txt"))
-realInput = ReadInput.readReports(("input/day2.txt"))
+exampleInput = ReadInput.readNumberLists(("input/day2Test.txt"))
+realInput = ReadInput.readNumberLists(("input/day2.txt"))
 
 IO.inspect Reports.countSafe(exampleInput)
 IO.inspect Reports.countSafe(realInput)
