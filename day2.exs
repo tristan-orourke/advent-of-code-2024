@@ -1,44 +1,44 @@
 defmodule Reports do
 
-  def isSafelyIncreasing([]), do: true
-  def isSafelyIncreasing([_ | []]), do: true
-  def isSafelyIncreasing([h | t]) do
+  def is_safely_increasing([]), do: true
+  def is_safely_increasing([_ | []]), do: true
+  def is_safely_increasing([h | t]) do
     next = hd(t)
-    next > h && (next - h) <= 3 && isSafelyIncreasing(t)
+    next > h && (next - h) <= 3 && is_safely_increasing(t)
   end
 
-  def isSafelyDecreasing([]), do: true
-  def isSafelyDecreasing([_ | []]), do: true
-  def isSafelyDecreasing([h | t]) do
+  def is_safely_decreasing([]), do: true
+  def is_safely_decreasing([_ | []]), do: true
+  def is_safely_decreasing([h | t]) do
     next = hd(t)
-    next < h && (h - next) <= 3 && isSafelyDecreasing(t)
+    next < h && (h - next) <= 3 && is_safely_decreasing(t)
   end
 
-  def isSafe(list) do
-    isSafelyIncreasing(list) || isSafelyDecreasing(list)
+  def is_safe(list) do
+    is_safely_increasing(list) || is_safely_decreasing(list)
   end
 
-  def countSafe(list) do
-    Enum.count(list, &isSafe/1)
+  def count_safe(list) do
+    Enum.count(list, &is_safe/1)
   end
 
-  def droppedItemPermutations(list) do
+  def dropped_item_permutations(list) do
     Enum.map(0..(length(list) - 1), fn i -> List.pop_at(list, i) end)
     |> Enum.map(fn {_, l} -> l end)
   end
-  def isSafeWithDampener(list) do
-    Enum.any?(droppedItemPermutations(list), &isSafe/1)
+  def is_safe_with_dampener(list) do
+    Enum.any?(dropped_item_permutations(list), &is_safe/1)
   end
-  def countSafeWithDampener(list) do
-    Enum.count(list, &isSafeWithDampener/1)
+  def count_safe_with_dampener(list) do
+    Enum.count(list, &is_safe_with_dampener/1)
   end
 end
 
-exampleInput = ReadInput.readNumberLists(("input/day2Test.txt"))
-realInput = ReadInput.readNumberLists(("input/day2.txt"))
+exampleInput = ReadInput.read_number_lists(("input/day2Test.txt"))
+realInput = ReadInput.read_number_lists(("input/day2.txt"))
 
-IO.inspect Reports.countSafe(exampleInput)
-IO.inspect Reports.countSafe(realInput)
+IO.inspect Reports.count_safe(exampleInput)
+IO.inspect Reports.count_safe(realInput)
 
-IO.inspect Reports.countSafeWithDampener(exampleInput)
-IO.inspect Reports.countSafeWithDampener(realInput)
+IO.inspect Reports.count_safe_with_dampener(exampleInput)
+IO.inspect Reports.count_safe_with_dampener(realInput)

@@ -29,8 +29,8 @@ defmodule Program do
 
 end
 
-exampleInput = ReadInput.readString(("input/day3Test.txt"))
-realInput = ReadInput.readString(("input/day3.txt"))
+exampleInput = ReadInput.read_string(("input/day3Test.txt"))
+realInput = ReadInput.read_string(("input/day3.txt"))
 
 IO.inspect Program.sum_all_products(exampleInput)
 IO.inspect Program.sum_all_products(realInput)

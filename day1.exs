@@ -1,5 +1,5 @@
 defmodule Distance do
-  def listDistance(lists) do
+  def list_distance(lists) do
     lists
     |> Enum.map(&Enum.sort/1)
     |> Enum.zip
@@ -7,24 +7,24 @@ defmodule Distance do
     |> Enum.sum
   end
 
-  def countInstances(enum, x) do
+  def count_instances(enum, x) do
     enum
     |> Enum.filter(&(&1 == x))
     |> Enum.count
   end
 
-  def listSimilarity([list1, list2]) do
+  def list_similarity([list1, list2]) do
     list1
-    |> Enum.map(fn (term) -> term * countInstances(list2, term) end)
+    |> Enum.map(fn (term) -> term * count_instances(list2, term) end)
     |> Enum.sum
   end
 end
 
-exampleInput = ReadInput.readVerticalLists(("input/day1Test.txt"))
-realInput = ReadInput.readVerticalLists(("input/day1.txt"))
+exampleInput = ReadInput.read_vertical_lists(("input/day1Test.txt"))
+realInput = ReadInput.read_vertical_lists(("input/day1.txt"))
 
-IO.inspect Distance.listDistance(exampleInput)
-IO.inspect Distance.listDistance(realInput)
+IO.inspect Distance.list_distance(exampleInput)
+IO.inspect Distance.list_distance(realInput)
 
-IO.inspect Distance.listSimilarity(exampleInput)
-IO.inspect Distance.listSimilarity(realInput)
+IO.inspect Distance.list_similarity(exampleInput)
+IO.inspect Distance.list_similarity(realInput)
