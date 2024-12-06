@@ -17,11 +17,21 @@ defmodule MapComputer do
     Vectors.matrix_elem(matrix, {x, y}) != "#"
   end
 
+  def update_state(
+        %Computer.State{
+          output: output
+        } = state,
+        new_registers
+      ) do
+    state
+    |> Map.replace(:registers, new_registers)
+    |> Map.replace(:output, [new_registers | output])
+  end
+
   def movement_interpreter(
         %Computer.State{
           program: program,
           registers: %{position: position, direction: direction},
-          output: output
         } = computer
       ) do
     test_position = Vectors.add(position, direction)
@@ -29,24 +39,15 @@ defmodule MapComputer do
     cond do
       # If we're out of bounds, we're done.
       not Vectors.position_in_matrix_range?(test_position, program) ->
-        {:halt, computer}
+        {:halt, update_state(computer, %{computer.registers | end_state: :out_of_bounds})}
 
       # If the position is open, move to it and add it to the output.
       position_is_open?(program, test_position) ->
-        {:cont,
-         %Computer.State{
-           computer
-           | registers: %{computer.registers | position: test_position},
-             output: [%{position: test_position, direction: direction} | output]
-         }}
+        {:cont, update_state(computer, %{computer.registers | position: test_position})}
 
-      # If the position is not open, turn right and continue.
+      # If the position is not open, turn right and add it to the output.
       true ->
-        {:cont,
-         %Computer.State{
-           computer
-           | registers: %{computer.registers | direction: turn_right(direction)}
-         }}
+        {:cont, update_state(computer, %{computer.registers | direction: turn_right(direction)})}
     end
   end
 
@@ -64,7 +65,7 @@ defmodule MapComputer do
 
     %Computer.State{
       program: char_matrix,
-      registers: %{position: initial_position, direction: @up},
+      registers: %{position: initial_position, direction: @up, end_state: nil},
       output: [%{position: initial_position, direction: @up}]
     }
   end
@@ -89,4 +90,4 @@ end
 IO.inspect(MapComputer.count_unique_positions_visited("input/day6Test.txt"))
 IO.inspect(MapComputer.count_unique_positions_visited("input/day6.txt"))
 
-IO.inspect(MapComputer.count_obstructions_which_cause_loop("input/day6Test.txt"))
+# IO.inspect(MapComputer.count_obstructions_which_cause_loop("input/day6Test.txt"))
