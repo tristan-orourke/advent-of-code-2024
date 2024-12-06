@@ -31,7 +31,7 @@ defmodule MapComputer do
   def movement_interpreter(
         %Computer.State{
           program: program,
-          registers: %{position: position, direction: direction},
+          registers: %{position: position, direction: direction}
         } = computer
       ) do
     test_position = Vectors.add(position, direction)
@@ -40,6 +40,12 @@ defmodule MapComputer do
       # If we're out of bounds, we're done.
       not Vectors.position_in_matrix_range?(test_position, program) ->
         {:halt, update_state(computer, %{computer.registers | end_state: :out_of_bounds})}
+
+      # If we've encounter this exact position before, we're stuck in a loop
+      Enum.any?(computer.output, fn %{position: prev_position, direction: prev_direction} ->
+        test_position == prev_position and direction == prev_direction
+      end) ->
+        {:halt, update_state(computer, %{computer.registers | end_state: :loop})}
 
       # If the position is open, move to it and add it to the output.
       position_is_open?(program, test_position) ->
@@ -80,14 +86,37 @@ defmodule MapComputer do
     |> Enum.count()
   end
 
+  def obstruction_will_cause_loop(obstruction_position, original_state) do
+    if obstruction_position == original_state.registers.position do
+      # We're not allowed to obstruct the initial position
+      false
+    else
+      ends_in_loop = fn state -> state.registers.end_state == :loop end
+      original_state
+      |> Map.replace(
+        :program,
+        Vectors.matrix_put_elem(original_state.program, obstruction_position, "#")
+      )
+      |> Computer.run(&movement_interpreter/1)
+      |> ends_in_loop.()
+    end
+  end
+
   def count_obstructions_which_cause_loop(input_file) do
-    ReadInput.read_char_matrix(input_file)
-    |> init()
-    |> (fn c -> %Computer.State{c | output: %{test: "blah"}} end).()
+    original_state = ReadInput.read_char_matrix(input_file) |> init()
+
+    original_state
+    |> Computer.run(&movement_interpreter/1)
+    |> Map.get(:output)
+    |> Enum.map(&Map.get(&1, :position))
+    |> Enum.uniq()
+    |> Enum.map(&obstruction_will_cause_loop(&1, original_state))
+    |> Enum.count(&(&1))
   end
 end
 
 IO.inspect(MapComputer.count_unique_positions_visited("input/day6Test.txt"))
 IO.inspect(MapComputer.count_unique_positions_visited("input/day6.txt"))
 
-# IO.inspect(MapComputer.count_obstructions_which_cause_loop("input/day6Test.txt"))
+IO.inspect(MapComputer.count_obstructions_which_cause_loop("input/day6Test.txt"))
+IO.inspect(MapComputer.count_obstructions_which_cause_loop("input/day6.txt"))
