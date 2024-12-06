@@ -4,25 +4,23 @@ defmodule Computer do
   end
 
   # Interpreter should return its input, unchanged, when the program is finished.
-  @spec run(Computer.State.t, (Computer.State.t -> Computer.State.t)) :: Computer.State.t
+  @spec run(Computer.State.t, (Computer.State.t -> Computer.State.t)) :: {:cont, Computer.State.t} | {:halt, Computer.State.t}
   def run(computer, interpreter) do
-    next = interpreter.(computer)
-
-    if next == computer do
-      computer
-    else
-      run(next, interpreter)
+    case interpreter.(computer) do
+      {:halt, new_computer} -> new_computer
+      {:cont, ^computer} -> raise "Interpreter stalled without halting."
+      {:cont, new_computer} -> run(new_computer, interpreter)
     end
   end
 
   def run(computer, interpreter, logger) do
-    logger.(computer)
-    next = interpreter.(computer)
-
-    if next == computer do
-      computer
-    else
-      run(next, interpreter, logger)
+    result = interpreter.(computer)
+    logger.(result)
+    case result do
+      {:halt, new_computer} -> new_computer
+      {:cont, ^computer} -> raise "Interpreter stalled without halting."
+      {:cont, new_computer} -> run(new_computer, interpreter, logger)
     end
   end
+
 end

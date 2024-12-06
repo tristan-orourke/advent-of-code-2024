@@ -27,27 +27,30 @@ defmodule Program do
   end
 
   def run_program_step(%Computer.State{program: []} = machine) do
-    machine
+    {:halt, machine}
   end
+
   def run_program_step(machine) do
     %{registers: %{enabled: enabled}, program: [cmd | program], output: output} = machine
+
     case cmd do
       ["mul", val1, val2] ->
-        %Computer.State{
-          registers: %{enabled: enabled},
-          program: program,
-          output:
-            if(enabled,
-              do: [String.to_integer(val1) * String.to_integer(val2) | output],
-              else: output
-            )
-        }
+        {:cont,
+         %Computer.State{
+           registers: %{enabled: enabled},
+           program: program,
+           output:
+             if(enabled,
+               do: [String.to_integer(val1) * String.to_integer(val2) | output],
+               else: output
+             )
+         }}
 
       ["do"] ->
-        %Computer.State{registers: %{enabled: true}, program: program, output: output}
+        {:cont, %Computer.State{registers: %{enabled: true}, program: program, output: output}}
 
       ["don't"] ->
-        %Computer.State{registers: %{enabled: false}, program: program, output: output}
+        {:cont, %Computer.State{registers: %{enabled: false}, program: program, output: output}}
     end
   end
 
