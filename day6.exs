@@ -30,35 +30,6 @@ defmodule MapComputer do
 
   def movement_interpreter(
         %Computer.State{
-          program: program,
-          registers: %{position: position, direction: direction}
-        } = computer
-      ) do
-    test_position = Vectors.add(position, direction)
-
-    cond do
-      # If we're out of bounds, we're done.
-      not Vectors.position_in_matrix_range?(test_position, program) ->
-        {:halt, update_state(computer, %{computer.registers | end_state: :out_of_bounds})}
-
-      # If we've encounter this exact position before, we're stuck in a loop
-      Enum.any?(computer.output, fn %{position: prev_position, direction: prev_direction} ->
-        test_position == prev_position and direction == prev_direction
-      end) ->
-        {:halt, update_state(computer, %{computer.registers | end_state: :loop})}
-
-      # If the position is open, move to it and add it to the output.
-      position_is_open?(program, test_position) ->
-        {:cont, update_state(computer, %{computer.registers | position: test_position})}
-
-      # If the position is not open, turn right and add it to the output.
-      true ->
-        {:cont, update_state(computer, %{computer.registers | direction: turn_right(direction)})}
-    end
-  end
-
-  def movement_interpreter_with_obstacle_map(
-        %Computer.State{
           program: obstacle_map,
           registers: %{position: {px, py}, direction: direction}
         } = computer
@@ -150,7 +121,7 @@ defmodule MapComputer do
     end)
   end
 
-  def init_with_obstacle_map(char_matrix) do
+  def init(char_matrix) do
     initial_position = find_position_in_matrix(char_matrix, "^")
 
     %Computer.State{
@@ -160,20 +131,10 @@ defmodule MapComputer do
     }
   end
 
-  def init(char_matrix) do
-    initial_position = find_position_in_matrix(char_matrix, "^")
-
-    %Computer.State{
-      program: char_matrix,
-      registers: %{position: initial_position, direction: @up, end_state: nil},
-      output: [%{position: initial_position, direction: @up}]
-    }
-  end
-
   def count_unique_positions_visited(input_file) do
     ReadInput.read_char_matrix(input_file)
-    |> init_with_obstacle_map()
-    |> Computer.run(&movement_interpreter_with_obstacle_map/1)
+    |> init()
+    |> Computer.run(&movement_interpreter/1)
     |> Map.get(:output)
     |> Enum.map(&Map.get(&1, :position))
     |> interpolate_corners()
@@ -199,7 +160,7 @@ defmodule MapComputer do
 
       original_state
       |> Map.update!(:program, &place_obstruction(&1, obstruction_position))
-      |> Computer.run(&movement_interpreter_with_obstacle_map/1)
+      |> Computer.run(&movement_interpreter/1)
       |> ends_in_loop.()
     end
   end
@@ -224,10 +185,10 @@ defmodule MapComputer do
   end
 
   def count_obstructions_which_cause_loop(input_file) do
-    original_state = ReadInput.read_char_matrix(input_file) |> init_with_obstacle_map()
+    original_state = ReadInput.read_char_matrix(input_file) |> init()
 
     original_state
-    |> Computer.run(&movement_interpreter_with_obstacle_map/1)
+    |> Computer.run(&movement_interpreter/1)
     |> Map.get(:output)
     |> Enum.map(&Map.get(&1, :position))
     |> interpolate_corners()
@@ -235,21 +196,10 @@ defmodule MapComputer do
     |> Enum.map(&obstruction_will_cause_loop(&1, original_state))
     |> Enum.count(& &1)
   end
-
-  def measure(function) do
-    function
-    |> :timer.tc()
-    |> elem(0)
-    |> Kernel./(1_000_000)
-  end
 end
 
-IO.inspect(MapComputer.count_unique_positions_visited("input/day6Test.txt"))
-IO.inspect(MapComputer.count_unique_positions_visited("input/day6.txt"))
+IO.inspect(MapComputer.count_unique_positions_visited("input/day6Test.txt") == 41)
+IO.inspect(MapComputer.count_unique_positions_visited("input/day6.txt") == 5516)
 
-# IO.inspect(
-#   MapComputer.measure(fn -> MapComputer.count_obstructions_which_cause_loop("input/day6.txt") end)
-# )
-
-IO.inspect(MapComputer.count_obstructions_which_cause_loop("input/day6Test.txt"))
-IO.inspect MapComputer.measure fn -> IO.inspect(MapComputer.count_obstructions_which_cause_loop("input/day6.txt")) end
+IO.inspect(MapComputer.count_obstructions_which_cause_loop("input/day6Test.txt") == 6)
+IO.inspect(MapComputer.count_obstructions_which_cause_loop("input/day6.txt") == 2008)
