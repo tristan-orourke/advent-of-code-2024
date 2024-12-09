@@ -4,7 +4,7 @@ defmodule ReadInput do
   end
 
   def nested_map(matrix, fun) do
-    Enum.map(matrix, &(Enum.map(&1, fun)))
+    Enum.map(matrix, &Enum.map(&1, fun))
   end
 
   def read_vertical_lists(filename) do
@@ -26,7 +26,14 @@ defmodule ReadInput do
 
   def read_string(filename) do
     File.read!(filename)
-    |> String.trim
+    |> String.trim()
+  end
+
+  def read_lines(filename) do
+    File.read!(filename)
+    |> String.trim()
+    |> String.split("\n")
+    |> Enum.map(&String.trim/1)
   end
 
   def read_char_matrix(filename) do
@@ -35,7 +42,14 @@ defmodule ReadInput do
     |> Enum.map(&String.trim/1)
     |> Enum.map(&String.graphemes/1)
     |> Enum.map(&List.to_tuple/1)
-    |> List.to_tuple
+    |> List.to_tuple()
+  end
+
+  def read_char_matrix_as_lists(filename) do
+    File.read!(filename)
+    |> String.split("\n")
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(&String.graphemes/1)
   end
 end
 

@@ -11,6 +11,17 @@ defmodule Vectors do
     sum([a, b])
   end
 
+  def scale(vector, scalar) do
+    vector
+    |> Tuple.to_list()
+    |> Enum.map(&(&1 * scalar))
+    |> List.to_tuple()
+  end
+
+  def subtract(a, b) do
+    sum([a, scale(b, -1)])
+  end
+
   def position_in_matrix_range?({x, y}, matrix) do
     x >= 0 and y >= 0 and y < tuple_size(matrix) and x < tuple_size(elem(matrix, y))
   end
