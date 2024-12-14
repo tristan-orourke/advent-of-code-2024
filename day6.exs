@@ -14,7 +14,7 @@ defmodule MapComputer do
   end
 
   def position_is_open?(matrix, {x, y}) do
-    Vectors.matrix_elem(matrix, {x, y}) != "#"
+    Vectors.matrix_elem!(matrix, {x, y}) != "#"
   end
 
   def update_state(

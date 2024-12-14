@@ -10,7 +10,7 @@ defmodule Crossword do
   def word_in_direction?(matrix, word, position, direction) do
     cond do
       !Vectors.position_in_matrix_range?(position, matrix) -> false
-      Vectors.matrix_elem(matrix, position) != String.at(word, 0) -> false
+      Vectors.matrix_elem!(matrix, position) != String.at(word, 0) -> false
       true -> word_in_direction?(matrix, String.slice(word, 1..-1//1), Vectors.add(position, direction), direction)
     end
   end
@@ -19,12 +19,12 @@ defmodule Crossword do
   def count_words_in_crossword(matrix, word) do
     start_char = String.at(word, 0)
     Vectors.list_all_matrix_positions(matrix)
-    |> Enum.filter(fn position -> Vectors.matrix_elem(matrix, position) == start_char end)
+    |> Enum.filter(fn position -> Vectors.matrix_elem!(matrix, position) == start_char end)
     |> Enum.map(fn position -> Enum.count(@directions, fn direction -> word_in_direction?(matrix, word, position, direction) end) end)
     |> Enum.sum
   end
   def get_word(positions, matrix) do
-    Enum.map(positions, fn position -> Vectors.matrix_elem(matrix, position) end) |> Enum.join
+    Enum.map(positions, fn position -> Vectors.matrix_elem!(matrix, position) end) |> Enum.join
   end
   def position_is_x_max?(position, matrix) do
     four_positions = Enum.map(@four_corners, fn direction -> Vectors.add(position, direction) end)
@@ -39,7 +39,7 @@ defmodule Crossword do
   end
   def count_x_mas_in_crossword(matrix) do
     Vectors.list_all_matrix_positions(matrix)
-      |> Enum.filter(fn position -> Vectors.matrix_elem(matrix, position) == "A" end)
+      |> Enum.filter(fn position -> Vectors.matrix_elem!(matrix, position) == "A" end)
       |> Enum.count(fn position -> position_is_x_max?(position, matrix) end)
   end
 end

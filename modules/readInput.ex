@@ -51,6 +51,16 @@ defmodule ReadInput do
     |> Enum.map(&String.trim/1)
     |> Enum.map(&String.graphemes/1)
   end
+
+  def read_integer_matrix(filename) do
+    File.read!(filename)
+    |> String.split("\n")
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(&String.graphemes/1)
+    |> nested_map(&String.to_integer/1)
+    |> Enum.map(&List.to_tuple/1)
+    |> List.to_tuple()
+  end
 end
 
 # IO.inspect ReadInput.read_vertical_lists("input/day1Test.txt")
